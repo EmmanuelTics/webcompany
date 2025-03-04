@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Empleados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            text-align: left;
+            padding: 12px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-buttons button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .edit-button {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .edit-button:hover {
+            background-color: #0056b3;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de Empleados</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Puesto</th>
+                <th>Salario</th>
+                <th>Email</th>
+                <th>Telefono</th>
+                <th>Dirección</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="employee-list">
+            <!-- Aquí se incluirán dinámicamente los empleados -->
+        </tbody>
+    </table>
+
+    <script>
+        // Llamada a la API para obtener los empleados
+        fetch('http://localhost:8080/employee/get')  // Reemplaza con la URL de tu API
+            .then(response => response.json())
+            .then(data => {
+                const employeeList = document.getElementById('employee-list');
+                // Recorre los datos y agrega filas a la tabla
+                data.forEach(empleado => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${empleado.name}</td>
+                        <td>${empleado.Workstation || 'No disponible'}</td>  <!-- Usar Workstation como puesto -->
+                        <td>${empleado.salary || 'No disponible'}</td>
+                        <td>${empleado.email || 'No disponible'}</td>
+                        <td>${empleado.phone || 'No disponible'}</td>
+                        <td>${empleado.address || 'No disponible'}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="edit-button">Editar</button>
+                                <button class="delete-button" onclick="eliminarEmpleado(${empleado.id})">Eliminar</button>
+                            </div>
+                        </td>
+                    `;
+                    employeeList.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error al obtener los empleados:', error);
+            });
+
+        // Función para eliminar un empleado
+        function eliminarEmpleado(id) {
+            fetch(`https://api.ejemplo.com/empleados/${id}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(() => {
+                alert('Empleado eliminado');
+                // Aquí puedes agregar código para actualizar la lista después de eliminar el empleado
+            })
+            .catch(error => console.error('Error al eliminar el empleado:', error));
+        }
+    </script>
+</body>
+</html>
