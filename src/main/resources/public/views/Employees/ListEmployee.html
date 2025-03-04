@@ -28,12 +28,16 @@
         th, td {
             border: 1px solid #ddd;
             text-align: left;
-            padding: 12px;
+            padding: 8px;
         }
 
         th {
             background-color: #4CAF50;
             color: white;
+        }
+
+        tr {
+            height: 30px;
         }
 
         tr:nth-child(even) {
@@ -73,10 +77,46 @@
         .delete-button:hover {
             background-color: #c82333;
         }
+
+        #search {
+            margin: 20px 0;
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .pagination button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .pagination button:hover:not(.active) {
+            background-color: #f1f1f1;
+        }
     </style>
 </head>
 <body>
     <h1>Lista de Empleados</h1>
+
+    <!-- Buscador -->
+    <input type="text" id="search" placeholder="Buscar por nombre..." onkeyup="searchEmployee()">
 
     <table>
         <thead>
@@ -85,7 +125,7 @@
                 <th>Puesto</th>
                 <th>Salario</th>
                 <th>Email</th>
-                <th>Telefono</th>
+                <th>Teléfono</th>
                 <th>Dirección</th>
                 <th>Acciones</th>
             </tr>
@@ -95,48 +135,96 @@
         </tbody>
     </table>
 
+    <div class="pagination" id="pagination"></div>
+
     <script>
-        // Llamada a la API para obtener los empleados
-        fetch('http://localhost:8080/employee/get')  // Reemplaza con la URL de tu API
-            .then(response => response.json())
-            .then(data => {
-                const employeeList = document.getElementById('employee-list');
-                // Recorre los datos y agrega filas a la tabla
-                data.forEach(empleado => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${empleado.name}</td>
-                        <td>${empleado.Workstation || 'No disponible'}</td>  <!-- Usar Workstation como puesto -->
-                        <td>${empleado.salary || 'No disponible'}</td>
-                        <td>${empleado.email || 'No disponible'}</td>
-                        <td>${empleado.phone || 'No disponible'}</td>
-                        <td>${empleado.address || 'No disponible'}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="edit-button">Editar</button>
-                                <button class="delete-button" onclick="eliminarEmpleado(${empleado.id})">Eliminar</button>
-                            </div>
-                        </td>
-                    `;
-                    employeeList.appendChild(row);
-                });
-            })
-            .catch(error => {
-                console.error('Error al obtener los empleados:', error);
-            });
+        let employees = []; // Array para guardar los empleados
+        let currentPage = 1;
+        const rowsPerPage = 10;
+
+        // Llamada inicial a la API para obtener los empleados
+        function fetchEmployees() {
+            fetch('http://localhost:8080/employee/get') // Reemplaza con la URL de tu API
+                .then(response => response.json())
+                .then(data => {
+                    employees = data;
+                    displayEmployees();
+                })
+                .catch(error => console.error('Error al obtener los empleados:', error));
+        }
 
         // Función para eliminar un empleado
-        function eliminarEmpleado(id) {
-            fetch(`https://api.ejemplo.com/empleados/${id}`, {
+        function eliminarEmpleado(name) {
+        
+            fetch(`http://localhost:8080/employee/delete/${encodeURIComponent(name)}`, { // Reemplaza con la URL de tu API
                 method: 'DELETE',
             })
-            .then(response => response.json())
-            .then(() => {
-                alert('Empleado eliminado');
-                // Aquí puedes agregar código para actualizar la lista después de eliminar el empleado
-            })
-            .catch(error => console.error('Error al eliminar el empleado:', error));
+                .then(response => {
+                    if (response.ok) {
+                        alert(`Empleado ${name} eliminado`);
+                        fetchEmployees(); // Actualizar la lista de empleados
+                    } else {
+                        alert('Error al eliminar el empleado');
+                    }
+                })
+                .catch(error => console.error('Error al eliminar el empleado:', error));
         }
+
+        // Función para buscar empleados por nombre
+        function searchEmployee() {
+            const searchQuery = document.getElementById('search').value.toLowerCase();
+            const filteredEmployees = employees.filter(empleado => 
+                empleado.name && empleado.name.toLowerCase().includes(searchQuery)
+            );
+            currentPage = 1;
+            displayEmployees(filteredEmployees);
+        }
+
+        // Función para mostrar los empleados con paginación
+        function displayEmployees(filteredEmployees = employees) {
+            const employeeList = document.getElementById('employee-list');
+            const pagination = document.getElementById('pagination');
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedEmployees = filteredEmployees.slice(start, end);
+
+            employeeList.innerHTML = ''; // Limpiar la lista de empleados
+            paginatedEmployees.forEach(empleado => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${empleado.name}</td>
+                    <td>${empleado.workstation || 'No disponible'}</td>
+                    <td>${empleado.salary || 'No disponible'}</td>
+                    <td>${empleado.email || 'No disponible'}</td>
+                    <td>${empleado.phone || 'No disponible'}</td>
+                    <td>${empleado.address || 'No disponible'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="edit-button">Editar</button>
+                            <button class="delete-button" onclick="eliminarEmpleado('${empleado.name}')">Eliminar</button>
+                        </div>
+                    </td>
+                `;
+                employeeList.appendChild(row);
+            });
+
+            // Crear paginación
+            const totalPages = Math.ceil(filteredEmployees.length / rowsPerPage);
+            pagination.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = i === currentPage ? 'active' : '';
+                button.addEventListener('click', () => {
+                    currentPage = i;
+                    displayEmployees(filteredEmployees);
+                });
+                pagination.appendChild(button);
+            }
+        }
+
+        // Cargar los empleados al iniciar
+        fetchEmployees();
     </script>
 </body>
 </html>
