@@ -1,5 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
+.breadcrumb {
+    background-color: transparent !important;
+    margin-bottom: 1px;
+    padding: 0;
+    border: none;
+}
+
 ::after,
 ::before {
     box-sizing: border-box;
@@ -17,7 +24,7 @@ li {
 
 h1 {
     font-weight: 600;
-    font-size: 1.5rem;  
+    font-size: 1.5rem;
 }
 
 body {
@@ -49,7 +56,7 @@ body {
 #sidebar.expand {
     width: 200px;
     min-width: 350px;
-  
+
 }
 
 .toggle-btn {
@@ -91,7 +98,8 @@ a.sidebar-link {
     font-size: 0.9rem;
     white-space: nowrap;
     border-left: 3px solid transparent;
-    position: relative; /* Añadido para manejo de icono de flecha */
+    position: relative;
+    
 }
 
 .sidebar-link i {
@@ -146,14 +154,10 @@ a.sidebar-link:hover {
 
 .sidebar-nav .collapse li a.sidebar-link {
     color: white !important;
-    transition: none !important; 
+    transition: none !important;
 }
 
 .sidebar-nav .collapse li a.sidebar-link::before {
-    content: "• " !important; 
-    color: white; 
+    content: "• " !important;
+    color: white;
 }
-
-
-
-

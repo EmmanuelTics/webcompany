@@ -4,15 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Empleado</title>
-    <link rel="stylesheet" href="../../css/Employees/edit.css">
+    <title>Actualizar Empleado</title>
+    <link rel="stylesheet" href="../../css/Employees/register.css">
 </head>
 
 <body>
-    <h1>Registro de Empleados</h1>
-    <form id="employeeForm" class="container">
-
-        <!-- Información Personal -->
+    <h1>Actualizar Empleado</h1>
+    <form id="editForm" class="container">
+   
         <div class="section" id="section-personal">
             <h2>Información Personal</h2>
             <div class="grid-columns">
@@ -54,20 +53,29 @@
             <button type="button" onclick="nextSection('section-documents')">Siguiente</button>
         </div>
 
-
         <!-- Documentación Oficial -->
         <div class="section" id="section-documents" style="display: none;">
-            <h2>Documentación Oficial</h2>
-            <label for="birth_certificate">Acta de Nacimiento:</label>
-            <input type="file" id="birth_certificate" name="birthCertificate" accept=".pdf,.jpg,.png">
 
+            <label for="birth_certificate_input">Acta de Nacimiento:</label>
+            <input type="file" id="birth_certificate_input" name="birthCertificate" accept=".pdf,.jpg,.png">
+            <div id="birth-certificate-preview" class="pdf-container"></div>
+            <input type="hidden" id="current-birth-certificate" name="current-birth-certificate"
+                value="{{currentBirthCertificateBase64}}"> 
+
+        
             <label for="rfc">RFC:</label>
             <input type="text" id="rfc" name="rfc" maxlength="13" pattern="[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}"
                 title="El RFC debe contener entre 10 y 13 caracteres con el formato correcto."
                 placeholder="Escribe tu RFC">
 
-            <label for="ine">INE:</label>
-            <input type="file" id="ine" name="ine" accept=".pdf,.jpg,.png">
+      
+            <label for="ine_input">INE:</label>
+            <input type="file" id="ine_input" name="ine" accept=".pdf,.jpg,.png">
+            <div id="ine-preview" class="pdf-container"></div>
+            <input type="hidden" id="current-ine" name="current-ine" value="{{currentIneBase64}}">
+          
+
+
 
             <label for="curp">CURP:</label>
             <input type="text" id="curp" name="curp" maxlength="18" pattern="[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9A-Z]{2}"
@@ -118,17 +126,21 @@
 
             <div class="navigation">
                 <button type="button" onclick="prevSection('section-contact')">Atrás</button>
-                <button type="submit">Registrar Empleado</button>
+                <button type="submit">Actualizar Empleado</button>
             </div>
         </div>
 
     </form>
     <div id="successCard" class="card" style="display: none;">
-        <h3>¡Empleado registrado exitosamente!</h3>
-        <p>Los datos del empleado han sido guardados correctamente.</p>
+        <h3>¡Empleado actualizado exitosamente!</h3>
+        <p>Los datos del empleado han sido actualizados correctamente.</p>
         <button onclick="goToTop()">Volver al inicio</button>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
 
-    <script src="../../js/Employees/register.js"></script>
+
+    <script src="../../js/Employees/edit.js"></script>
+
+</body>
 
 </html>

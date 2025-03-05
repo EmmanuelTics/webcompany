@@ -2,29 +2,29 @@ const toggleBtn = document.querySelector('.toggle-btn');
 const sidebar = document.querySelector('#sidebar');
 const submenus = document.querySelectorAll('.sidebar-link');
 
-// Estado para verificar si el menú principal está expandido
+
 let isSidebarExpanded = false;
 
-// Función para abrir o cerrar el sidebar
+
 toggleBtn.addEventListener('click', () => {
     sidebar.classList.toggle('expand');
-    isSidebarExpanded = !isSidebarExpanded; // Cambiar el estado de expansión
+    isSidebarExpanded = !isSidebarExpanded; 
 
     if (isSidebarExpanded) {
-        // Restaurar atributos de los submenús al abrir el menú principal
+       
         submenus.forEach(link => {
-            link.setAttribute('data-bs-toggle', 'collapse'); // Permitir la funcionalidad de colapsar
-            link.setAttribute('aria-expanded', 'false'); // Asegurar que todos los submenús estén cerrados inicialmente
+            link.setAttribute('data-bs-toggle', 'collapse'); 
+            link.setAttribute('aria-expanded', 'false'); 
             const target = link.getAttribute('data-bs-target');
             if (target) {
                 const targetElement = document.querySelector(target);
                 if (targetElement) {
-                    targetElement.classList.remove('show'); // Cerrar el contenido colapsado
+                    targetElement.classList.remove('show'); 
                 }
             }
         });
     } else {
-        // Cuando la barra lateral está cerrada, eliminar los atributos para evitar interacción
+   
         submenus.forEach(link => {
             link.removeAttribute('data-bs-toggle');
             link.setAttribute('aria-expanded', 'false');
@@ -33,34 +33,34 @@ toggleBtn.addEventListener('click', () => {
             if (target) {
                 const targetElement = document.querySelector(target);
                 if (targetElement) {
-                    targetElement.classList.remove('show'); // Cerrar el contenido colapsado
+                    targetElement.classList.remove('show'); 
                 }
             }
         });
     }
 });
 
-// Función para gestionar la apertura de un submenú específico
+
 submenus.forEach(link => {
     link.addEventListener('click', (e) => {
         if (!isSidebarExpanded) {
-            // Si el menú no está expandido, expandirlo
+         
             sidebar.classList.add('expand');
             isSidebarExpanded = true;
 
-            // Restaurar atributos de colapso para todos los submenús
+            
             submenus.forEach(menu => {
                 menu.setAttribute('data-bs-toggle', 'collapse');
-                menu.setAttribute('aria-expanded', 'false'); // Cerrar los submenús inicialmente
+                menu.setAttribute('aria-expanded', 'false'); 
             });
 
-            // Permitir que el submenú actual se despliegue después de expandir la barra lateral
+           
             setTimeout(() => {
                 link.setAttribute('data-bs-toggle', 'collapse');
-            }, 300); // Tiempo de espera para que la barra lateral termine de expandirse
+            }, 300); 
         }
 
-        // Asegurar que todos los demás submenús estén cerrados
+       
         submenus.forEach(otherLink => {
             if (otherLink !== link) {
                 otherLink.setAttribute('aria-expanded', 'false');
@@ -96,13 +96,49 @@ document.getElementById('inicioLink').addEventListener('click', function (event)
 });
 
 
-// Código existente...
-
-// Manejar el clic en el enlace de logout
 document.querySelector('.sidebar-footer a[href="Login.html"]').addEventListener('click', function(event) {
-    event.preventDefault(); // Evita el comportamiento predeterminado del enlace
-    window.location.href = 'Login.html'; // Redirige a la página de login
+    event.preventDefault(); 
+    window.location.href = 'Login.html';
 });
 
 
 
+function cargarVista(event) {
+    event.preventDefault();
+    const ruta = event.target.getAttribute('data-ruta');
+    const nombre = event.target.textContent.trim();
+    const iframe = document.querySelector('iframe');
+
+    if (!ruta) {
+        window.location.href = 'error/error.html';
+        return;
+    }
+
+    fetch(ruta)
+        .then(response => {
+            if (response.ok) {
+                iframe.src = ruta;
+                actualizarBreadcrumbs(ruta, nombre);
+            } else {
+                throw new Error('Página no encontrada');
+            }
+        })
+        .catch(() => {
+            window.location.href = 'error/error.html';
+        });
+}
+
+
+function actualizarBreadcrumbs(ruta, nombre) {
+    const breadcrumbs = document.getElementById('breadcrumbs');
+    breadcrumbs.innerHTML = `
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#" onclick="cargarVista(event)" data-ruta="Home.html">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">${nombre}</li>
+        </ol>`;
+}
+
+
+document.querySelector('iframe').onerror = function () {
+    window.location.href = 'error.html';
+};
